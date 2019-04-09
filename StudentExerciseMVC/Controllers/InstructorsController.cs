@@ -157,7 +157,7 @@ namespace StudentExerciseMVC.Controllers
             {
                 return NotFound();
             }
-            //This piece of code keeps the type correct to pass into the editPost section.
+            //This piece of code keeps the type correct to pass into the edit
             InstructorEditViewModel viewModel = new InstructorEditViewModel
             {
                 Cohorts = GetAllCohorts(),
