@@ -164,23 +164,55 @@ namespace StudentExerciseMVC.Controllers
         // GET: Students/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            Student student = GetStudentById(id);
+            if (student == null)
+            {
+                return NotFound();
+            }
+            //This piece of code keeps the type correct to pass into the edit
+            StudentEditViewModel viewModel = new StudentEditViewModel
+            {
+                Cohorts = GetAllCohorts(),
+                Student = student
+            };
+
+            return View(viewModel);
         }
 
         // POST: Students/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, StudentEditViewModel viewModel)
         {
             try
             {
-                // TODO: Add update logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"UPDATE student 
+                                           SET firstname = @firstname, 
+                                               lastname = @lastname,
+                                               slackhandle = @slackhandle, 
+                                               cohortid = @cohortid
+                                         WHERE id = @id;";
 
-                return RedirectToAction(nameof(Index));
+                        cmd.Parameters.Add(new SqlParameter("@firstname", viewModel.Student.FirstName));
+                        cmd.Parameters.Add(new SqlParameter("@lastname", viewModel.Student.LastName));
+                        cmd.Parameters.Add(new SqlParameter("@slackhandle", viewModel.Student.SlackHandle));
+                        cmd.Parameters.Add(new SqlParameter("@cohortid", viewModel.Student.CohortId));
+                        cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                        cmd.ExecuteNonQuery();
+
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
             }
             catch
             {
-                return View();
+                return View(viewModel);
             }
         }
 
@@ -222,7 +254,7 @@ namespace StudentExerciseMVC.Controllers
                                                s.CohortId,
                                                c.Name AS CohortName
                                          FROM Student s LEFT JOIN Cohort c on s.cohortid = c.id
-                                         WHERE  i.Id = @id";
+                                         WHERE  s.Id = @id";
                     cmd.Parameters.Add(new SqlParameter("@id", id));
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -232,7 +264,7 @@ namespace StudentExerciseMVC.Controllers
                     {
                         student = new Student
                         {
-                            Id = reader.GetInt32(reader.GetOrdinal("StudendId")),
+                            Id = reader.GetInt32(reader.GetOrdinal("StudentId")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
                             SlackHandle = reader.GetString(reader.GetOrdinal("SlackHandle")),
