@@ -11,23 +11,8 @@ namespace StudentExerciseMVC.Models.ViewModels
 
 
         public Cohort Cohort { get; set; }
-        public List<Cohort> Cohorts { get; set; }
-        public List<SelectListItem> CohortOptions
-        {
-            get
-            {
-                if (Cohorts == null)
-                {
-                    return null;
-                }
-
-                return Cohorts.Select(c => new SelectListItem
-                {
-                    Value = c.Id.ToString(),
-                    Text = c.Name
-                }).ToList();
-            }
-        }
+        
+       
 
     }
 }

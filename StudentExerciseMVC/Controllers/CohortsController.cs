@@ -183,13 +183,18 @@ namespace StudentExerciseMVC.Controllers
 
         // GET: Cohorts/Edit/5
         public ActionResult Edit(int id)
-        {
+        {    //Here we are verifying that the correct cohort is there by using the cohort 
             Cohort cohort = GetCohortById(id);
             if (cohort == null)
             {
                 return NotFound();
             }
-            return  View();
+            // This is setting the view model based on the cohort item we created above.
+            CohortEditViewModel viewModel = new CohortEditViewModel
+            {
+               Cohort = cohort
+            };
+            return  View(viewModel);
         }
 
         // POST: Cohorts/Edit/5
@@ -205,7 +210,7 @@ namespace StudentExerciseMVC.Controllers
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandText = @"UPDATE Cohort 
-                                           SET [Name] = @cohortName, 
+                                           SET Name = @cohortName 
                                            WHERE id = @id;";
                         cmd.Parameters.Add(new SqlParameter("@cohortName", viewModel.Cohort.Name));
                        
@@ -219,7 +224,7 @@ namespace StudentExerciseMVC.Controllers
             }
             catch
             {
-                viewModel.Cohorts = GetAllCohorts();
+               
                 return View(viewModel);
             }
         }
